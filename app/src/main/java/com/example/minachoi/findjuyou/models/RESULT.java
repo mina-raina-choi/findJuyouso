@@ -8,7 +8,7 @@ public class RESULT {
 
     @SerializedName("OIL")
     @Expose
-    private List<OIL> oIL = null;
+    private List<OIL> oIL;
 
     public List<OIL> getOIL() {
         return oIL;
