@@ -1,5 +1,6 @@
 package com.example.minachoi.findjuyou.adapter;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -10,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.minachoi.findjuyou.R;
+import com.example.minachoi.findjuyou.fragment.ListFragment;
 import com.example.minachoi.findjuyou.models.OIL;
 
 import java.util.List;
@@ -19,6 +21,8 @@ import static android.content.ContentValues.TAG;
 public class CustomListAdapter extends RecyclerView.Adapter<CustomListAdapter.MyViewHolder> {
 
     List<OIL> oilList;
+    Context context;
+    ListFragment.SelectOil selectOil;
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
         TextView nameTextView;
@@ -35,8 +39,9 @@ public class CustomListAdapter extends RecyclerView.Adapter<CustomListAdapter.My
         }
     }
 
-    public CustomListAdapter(List<OIL> oilList) {
+    public CustomListAdapter(List<OIL> oilList, Context context) {
         this.oilList = oilList;
+        this.context = context;
     }
 
     @NonNull
@@ -44,15 +49,25 @@ public class CustomListAdapter extends RecyclerView.Adapter<CustomListAdapter.My
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_card_item, parent, false);
         MyViewHolder myViewHolder = new MyViewHolder(view);
+
+        selectOil = (ListFragment.SelectOil) context;
         return myViewHolder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        OIL oilObject = this.oilList.get(position);
-        holder.nameTextView.setText(oilObject.oSNM);
+        final OIL oilObject = this.oilList.get(position);
+        holder.nameTextView.setText(oilObject.getOSNM().toString());
         holder.distanceTextView.setText(oilObject.getDISTANCE().toString());
         holder.priceTextView.setText(oilObject.getPRICE().toString());
+
+        holder.itemView.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                selectOil.selectOilStation(oilObject);
+                notifyDataSetChanged();
+            }
+        });
     }
 
     @Override

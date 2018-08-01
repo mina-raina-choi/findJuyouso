@@ -9,8 +9,11 @@ import android.view.View;
 
 import com.example.minachoi.findjuyou.R;
 import com.example.minachoi.findjuyou.adapter.ViewPagerAdapter;
+import com.example.minachoi.findjuyou.fragment.ListFragment;
+import com.example.minachoi.findjuyou.fragment.MapFragment;
+import com.example.minachoi.findjuyou.models.OIL;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ListFragment.SelectOil {
 
     TabLayout tabLayout;
     ViewPager viewPager;
@@ -33,5 +36,12 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setAdapter(viewPagerAdapter);
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+    }
+
+    @Override
+    public void selectOilStation(OIL oil) {
+        String tag = "android:switcher:" + R.id.viewPager + ":" + 1;
+        MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentByTag(tag);
+        mapFragment.showSelectedOilStation(oil);
     }
 }

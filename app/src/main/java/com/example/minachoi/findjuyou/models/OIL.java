@@ -15,7 +15,7 @@ public class OIL {
 
     @SerializedName("OS_NM")
     @Expose
-    public String oSNM;
+    private String oSNM;
 
     @SerializedName("PRICE")
     @Expose

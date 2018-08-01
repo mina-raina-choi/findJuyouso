@@ -68,7 +68,7 @@ public class ListFragment extends Fragment {
                 List<OIL> oilList = result.getRESULT().getOIL();
                 Log.d(TAG, "onResponse: result" + oilList);
                 Log.d(TAG, "onResponse: oilList 0 " + oilList.get(0));
-                adapter = new CustomListAdapter(oilList);
+                adapter = new CustomListAdapter(oilList, getActivity());
                 recyclerView.setAdapter(adapter);
             }
 
@@ -78,5 +78,9 @@ public class ListFragment extends Fragment {
                 call.cancel();
             }
         });
+    }
+
+    public interface SelectOil {
+        void selectOilStation(OIL oil);
     }
 }
