@@ -16,7 +16,6 @@ import com.example.minachoi.findjuyou.R;
 import com.example.minachoi.findjuyou.adapter.CustomListAdapter;
 import com.example.minachoi.findjuyou.models.GasStation;
 import com.example.minachoi.findjuyou.models.OIL;
-import com.example.minachoi.findjuyou.models.RESULT;
 import com.example.minachoi.findjuyou.network.APIClient;
 import com.example.minachoi.findjuyou.network.APIInterface;
 
