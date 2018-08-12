@@ -5,7 +5,12 @@ import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Location;
+
+import com.example.minachoi.findjuyou.utils.GeoTrans;
+import com.example.minachoi.findjuyou.utils.GeoTransPoint;
 import com.google.android.gms.location.LocationListener;
+
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -38,8 +43,7 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 public class MainActivity extends AppCompatActivity
         implements ListFragment.SelectOil,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener, LocationListener
-        {
+        GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     // fragment 관련
     TabLayout tabLayout;
@@ -59,7 +63,7 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<String> permissinsRejected = new ArrayList();
     private ArrayList<String> permissions = new ArrayList();
 
-    private  final static int ALL_PERMISSIONS_RESULT = 101;
+    private final static int ALL_PERMISSIONS_RESULT = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,17 +80,22 @@ public class MainActivity extends AppCompatActivity
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if(permissionsToRequest.size() > 0) {
+            if (permissionsToRequest.size() > 0) {
                 if (permissionsToRequest.size() > 0)
                     requestPermissions(permissionsToRequest.toArray(new String[permissionsToRequest.size()]), ALL_PERMISSIONS_RESULT);
             }
         }
-        
+
         googleApiClient = new GoogleApiClient.Builder(this)
-                    .addApi(LocationServices.API)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .build();
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
+//        LocationManager lm = map.getLocationManager();
+//        Values3 pt = lm.getProjectedPoint();
+//        IGPSProjection proj = new KatecProjection();
+//        map.getLocationManager().setProjection(proj);
 
         //  현재위치 받아와서 기본값 세팅!?!
         //  옵션메뉴에서 설정페이지로 이동
@@ -114,8 +123,8 @@ public class MainActivity extends AppCompatActivity
 
     private ArrayList findUnAskedPermissions(ArrayList<String> wanted) {
         ArrayList result = new ArrayList();
-        for(String perm : wanted) {
-            if(!hasPermissions(perm)) {
+        for (String perm : wanted) {
+            if (!hasPermissions(perm)) {
                 result.add(perm);
             }
         }
@@ -123,8 +132,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private boolean hasPermissions(String permission) {
-        if(canMakeSmores()) {
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (canMakeSmores()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 return (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED);
             }
         }
@@ -139,21 +148,22 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        if(googleApiClient != null) googleApiClient.connect();
+        if (googleApiClient != null) googleApiClient.connect();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if(!checkPlayServices()) Log.d("MainActivity", "onResume: Please install Google Play services.");
+        if (!checkPlayServices())
+            Log.d("MainActivity", "onResume: Please install Google Play services.");
     }
 
     private boolean checkPlayServices() {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
 
         int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
-        if( resultCode != ConnectionResult.SUCCESS) {
-            if(apiAvailability.isUserResolvableError(resultCode)) {
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
                 apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST).show();
             } else finish();
 
@@ -171,14 +181,24 @@ public class MainActivity extends AppCompatActivity
         //서포트 라이브러리에 새롭게 추가된 checkSelfPermissions() 메서드를 사용해 권한을 갖고 있는지 확인할 수 있습니다. 만일 필요한 권한이 없는 경우, 다음과 같이 requestPermissions() 메서드를 이용해 사용자에게 직접 해당 권한을 요청
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED  ) {
+                != PackageManager.PERMISSION_GRANTED) {
             return;
         }
 
         location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
 
-        if(location != null) {
-            Log.d("Main", "onConnected: lat -" + location.getLatitude() + "/ lng -" + location.getLongitude() );
+        if (location != null) {
+            Log.d("Main", "onConnected: lat : " + location.getLatitude() + "/ lng : " + location.getLongitude());
+
+            GeoTransPoint currLocation = new GeoTransPoint(122.084, 37.4219983);
+//            GeoTransPoint currLocation = new GeoTransPoint(location.getLongitude(), location.getLatitude());
+
+            GeoTransPoint katecLocation = GeoTrans.convert(GeoTrans.GEO, GeoTrans.KATEC, currLocation);
+
+            GeoTransPoint TMLocation = GeoTrans.convert(GeoTrans.GEO, GeoTrans.TM, currLocation);
+
+            Log.d("Main", "onConnected: katecLocation lat -" + katecLocation.getX() + "/ lng -" + katecLocation.getY());
+            Log.d("Main", "onConnected: TMLocation lat -" + TMLocation.getX() + "/ lng -" + TMLocation.getY());
         }
         startLocationUpdates();
     }
@@ -189,7 +209,7 @@ public class MainActivity extends AppCompatActivity
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationRequest.setInterval(UPDATE_INTERVAL);
         locationRequest.setFastestInterval(FASTEST_INTERVAL);
-        if(ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED 
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(getApplicationContext(), "Enable Permissions", Toast.LENGTH_LONG).show();
         }
@@ -214,17 +234,17 @@ public class MainActivity extends AppCompatActivity
         switch (requestCode) {
             case ALL_PERMISSIONS_RESULT:
                 for (String perms : permissionsToRequest) {
-                    if(!hasPermissions(perms)) permissinsRejected.add(perms);
+                    if (!hasPermissions(perms)) permissinsRejected.add(perms);
                 }
 
-                if(permissinsRejected.size() > 0) {
-                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        if(shouldShowRequestPermissionRationale(permissinsRejected.get(0))) {
+                if (permissinsRejected.size() > 0) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if (shouldShowRequestPermissionRationale(permissinsRejected.get(0))) {
                             showMessageOKCancel("These permissions are mandatory for the application. Please allow access.",
                                     new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
-                                            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                                 requestPermissions(permissinsRejected.toArray(new String[permissinsRejected.size()]), ALL_PERMISSIONS_RESULT);
                                             }
                                         }
@@ -252,8 +272,7 @@ public class MainActivity extends AppCompatActivity
         stopLocationUpdates();
     }
 
-    public void stopLocationUpdates()
-    {
+    public void stopLocationUpdates() {
         if (googleApiClient.isConnected()) {
             LocationServices.FusedLocationApi
                     .removeLocationUpdates(googleApiClient, this);
@@ -262,9 +281,9 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-            @Override
-            public void onLocationChanged(Location location) {
-                if(location!=null)
-                    Log.d("", "Latitude : "+location.getLatitude()+"  Longitude : "+location.getLongitude());
-            }
-        }
+    @Override
+    public void onLocationChanged(Location location) {
+        if (location != null)
+            Log.d("", "Latitude : " + location.getLatitude() + "  Longitude : " + location.getLongitude());
+    }
+}

@@ -61,6 +61,19 @@ public class CustomListAdapter extends RecyclerView.Adapter<CustomListAdapter.My
         holder.distanceTextView.setText(oilObject.getDISTANCE().toString());
         holder.priceTextView.setText(oilObject.getPRICE().toString());
 
+//        Log.e(TAG, "onBindViewHolder: " + oilObject.getPOLLDIVCD() );
+        if(oilObject.getPOLLDIVCD().equals("GSC"))
+            holder.logoImageView.setImageResource(R.drawable.gs);
+
+        else if(oilObject.getPOLLDIVCD().equals("HDO"))
+            holder.logoImageView.setImageResource(R.drawable.hyundai);
+
+        else if(oilObject.getPOLLDIVCD().equals("SOL"))
+            holder.logoImageView.setImageResource(R.drawable.s_oil);
+
+        else if(oilObject.getPOLLDIVCD().equals("SKE"))
+            holder.logoImageView.setImageResource(R.drawable.sk);
+
         holder.itemView.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
